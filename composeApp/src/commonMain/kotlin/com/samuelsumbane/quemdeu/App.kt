@@ -30,17 +30,18 @@ fun App(navigator: Navigator) {
         val transactionViewModel by remember { mutableStateOf(getKoin().get<TransactionViewModel>())}
         val transactionUiState by transactionViewModel.state.collectAsState()
 
-//        navigator.push(TransactionScreen())
-        navigator.push(EachTransactionDetailScreen(Transaction(
-            id = 1,
-            title = "emprestimo",
-            description = "me pagou os 20 meticais",
-            amount = 20.00,
-            personName = "Ana bela",
-            limitDateTime = 0L,
-            paidDateTime = 0L,
-            state = TransactionType.IN
-        )))
+        navigator.push(TransactionScreen())
+
+//        navigator.push(EachTransactionDetailScreen(Transaction(
+//            id = 1,
+//            title = "emprestimo",
+//            description = "me pagou os 20 meticais",
+//            amount = 20.00,
+//            personName = "Ana bela",
+//            limitDateTime = 0L,
+//            paidDateTime = 0L,
+//            state = TransactionType.IN
+//        )))
 
 //        Column(
 //            modifier = Modifier

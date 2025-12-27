@@ -10,6 +10,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -25,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -54,6 +57,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.quemdeu.domain.model.Transaction
 import com.samuelsumbane.quemdeu.domain.model.TransactionType
 import com.samuelsumbane.quemdeu.presentation.viewmodel.TransactionViewModel
@@ -79,6 +85,7 @@ fun TransactionsPage() {
     val tabs = listOf("Entrada", "Saída")
     var selectedTabIndex by remember { mutableStateOf(0) }
     val primaryColor = MaterialTheme.colorScheme.primary
+    val navigator = LocalNavigator.currentOrThrow
 
 
     val transactionViewModel by remember { mutableStateOf(getKoin().get<TransactionViewModel>())}
@@ -97,7 +104,7 @@ fun TransactionsPage() {
                 dataNotFound(text = "Nenhuma transação de saída encontrada")
             } else {
                 lazyColumn {
-                    items(inTransactionsList) { ItemRow(it) }
+                    items(inTransactionsList) { ItemRow(navigator,it) }
                 }
             }
         } else {
@@ -105,7 +112,7 @@ fun TransactionsPage() {
                 dataNotFound(text = "Nenhuma transação de entrada encontrada")
             } else {
                 lazyColumn {
-                    items(outTransactionsList) { ItemRow(it) }
+                    items(outTransactionsList) { ItemRow(navigator, it) }
                 }
             }
         }
@@ -201,88 +208,105 @@ fun TransactionsPage() {
 //            }
 //        }
     ) {
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
-                .background(Color.DarkGray),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+           modifier = Modifier
+               .padding(it)
         ) {
-            SecondaryTabRow(
-                selectedTabIndex = 0,
+
+            Column(
                 modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(0.95f)
-                    .height(50.dp)
-//                    .background(Color.Red)
-                ,
-                containerColor = Color.Transparent,
-                divider = {}
+//                .padding(it)
+                    .fillMaxSize()
+                    .background(Color.DarkGray),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                tabs.forEachIndexed { index, tab ->
-                    Tab(
-                        text = {
-                            Text(tab, color = if (selectedTabIndex == index) Color.White else primaryColor)
-                        },
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        modifier = Modifier
-                            .background(
-                                color = if (selectedTabIndex == index) primaryColor else Color.Transparent,
-                                shape = RoundedCornerShape(8.dp),
-                            ),
-                        selectedContentColor = primaryColor,
+                SecondaryTabRow(
+                    selectedTabIndex = 0,
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(0.95f)
+                        .height(50.dp)
+//                    .background(Color.Red)
+                    ,
+                    containerColor = Color.Transparent,
+                    divider = {}
+                ) {
+                    tabs.forEachIndexed { index, tab ->
+                        Tab(
+                            text = {
+                                Text(
+                                    tab,
+                                    color = if (selectedTabIndex == index) Color.White else primaryColor
+                                )
+                            },
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            modifier = Modifier
+                                .background(
+                                    color = if (selectedTabIndex == index) primaryColor else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp),
+                                ),
+                            selectedContentColor = primaryColor,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(10.dp, 17.dp)
+                        .fillMaxWidth()
+//                    .height(55.dp)
+                        .background(Color.Red)
+                ) {
+                    SearchInput(
+                        value = searchValue,
+                        onValueChangedValue = { searchValue = it }
                     )
+                }
+
+
+                AnimatedContent(
+                    targetState = selectedTabIndex,
+                    transitionSpec = {
+                        slideIntoContainer(
+                            animationSpec = tween(400, easing = EaseIn), towards = Up
+                        ).togetherWith(
+                            slideOutOfContainer(
+                                animationSpec = tween(450, easing = EaseOut), towards = Down
+                            )
+                        )
+                    },
+                ) { selectedTabIndex ->
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+//                        println(selectedTabIndex)
+                        when (selectedTabIndex) {
+                            0 -> tabContent(TransactionType.IN)
+                            1 -> tabContent(TransactionType.OUT)
+                        }
+                    }
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .padding(10.dp, 17.dp)
-                    .fillMaxWidth()
-//                    .height(55.dp)
-                    .background(Color.Red)
-            ) {
-                SearchInput(
-                    value = searchValue,
-                    onValueChangedValue = { searchValue = it }
-                )
-            }
-
-            Button(
+            ElevatedButton(
                 onClick = {
                     scope.launch {
                         scaffoldState.bottomSheetState.expand()
                     }
-                }
-            ) {
-               Text("daf")
-            }
-
-
-            AnimatedContent(
-                targetState = selectedTabIndex,
-                transitionSpec = {
-                    slideIntoContainer(
-                        animationSpec = tween(400, easing = EaseIn), towards = Up
-                    ).togetherWith(
-                        slideOutOfContainer(
-                            animationSpec = tween(450, easing = EaseOut), towards = Down
-                        )
-                    )
                 },
-            ) { selectedTabIndex ->
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-//                        println(selectedTabIndex)
-                    when (selectedTabIndex) {
-                        0 -> tabContent(TransactionType.IN)
-                        1 -> tabContent(TransactionType.OUT)
-                    }
-                }
+                shape = RoundedCornerShape(30),
+                modifier = Modifier
+                    .padding(end = 30.dp, bottom = 30.dp)
+//                    .size(60.dp)
+                    .align(Alignment.BottomEnd)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.add),
+                    "add",
+                    modifier = Modifier.size(30.dp))
             }
         }
     }
@@ -301,16 +325,13 @@ fun dataNotFound(text: String) {
 }
 
 @Composable
-fun ItemRow(transaction: Transaction) {
+fun ItemRow(navigator: Navigator, transaction: Transaction) {
     Row(
         modifier = Modifier
-//            .padding(10.dp)
             .fillMaxWidth()
             .background(Color.Green)
             .padding(10.dp)
-            .clickable {
-
-            }
+            .clickable { navigator.push(EachTransactionDetailScreen(transaction)) }
         ,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

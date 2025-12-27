@@ -40,7 +40,6 @@ class TransactionViewModel(
         }
     }
 
-
     fun submitForm() {
         viewModelScope.launch {
             if (state.value.title.isBlank()) {
@@ -74,7 +73,7 @@ class TransactionViewModel(
             )
 
             addTransactionUseCase(transactionDraft)
-
+            if (transactionDraft.transactionType == TransactionType.IN) getInTransactions() else getOutTransactions()
         }
 
     }
