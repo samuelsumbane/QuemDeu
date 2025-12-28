@@ -4,7 +4,6 @@ import com.samuelsumbane.quemdeu.domain.model.TransactionDraft
 import com.samuelsumbane.quemdeu.domain.repository.TransactionRepository
 
 class AddTransactionUseCase(private val transactionRepository: TransactionRepository) {
-
     suspend operator fun invoke(transactionDraft: TransactionDraft) {
         // Can add something else here.
         transactionRepository.addPayMoney(transactionDraft)

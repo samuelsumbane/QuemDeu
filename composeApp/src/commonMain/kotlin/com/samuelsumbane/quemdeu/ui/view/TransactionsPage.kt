@@ -65,6 +65,7 @@ import com.samuelsumbane.quemdeu.domain.model.Transaction
 import com.samuelsumbane.quemdeu.domain.model.TransactionType
 import com.samuelsumbane.quemdeu.presentation.viewmodel.TransactionViewModel
 import com.samuelsumbane.quemdeu.ui.InputField
+import com.samuelsumbane.quemdeu.ui.InputNames
 import com.samuelsumbane.quemdeu.ui.PageName
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -145,19 +146,22 @@ fun TransactionsPage() {
                         label = "Titulo",
                         inputValue = transactionUiState.title,
                         onValueChanged = { transactionViewModel.fillFormFields(title = it) },
+                        errorText = transactionUiState.errors[InputNames.Title],
                         modifier = Modifier.fillMaxWidth()
                     )
+
                     InputField(
                         label = "Descrição",
                         inputValue = transactionUiState.description,
                         onValueChanged = { transactionViewModel.fillFormFields(description = it) },
                         modifier = Modifier.fillMaxWidth()
-
                     )
+
                     InputField(
                         label = "Titular",
                         inputValue = transactionUiState.personName,
                         onValueChanged = { transactionViewModel.fillFormFields(personName = it) },
+                        errorText = transactionUiState.errors[InputNames.PersonName],
                         modifier = Modifier.fillMaxWidth()
 
                     )
@@ -165,6 +169,7 @@ fun TransactionsPage() {
                         label = "Montante",
                         inputValue = transactionUiState.amount.toString(),
                         onValueChanged = { transactionViewModel.fillFormFields(amount = it.toDouble()) },
+                        errorText = transactionUiState.errors[InputNames.Amount],
                         modifier = Modifier.fillMaxWidth(),
                         keyboardType = KeyboardType.Decimal
                     )
@@ -195,7 +200,12 @@ fun TransactionsPage() {
                         }
 
                         Button(
-                            onClick = { transactionViewModel.submitForm() }
+                            onClick = {
+                                scope.launch {
+                                    transactionViewModel.submitForm()
+                                    scaffoldState.bottomSheetState.hide()
+                                }
+                            }
                         ) {
                             Text("Submeter")
                         }
@@ -218,6 +228,7 @@ fun TransactionsPage() {
             Column(
                 modifier = Modifier
 //                .padding(it)
+                    .padding(top = 30.dp)
                     .fillMaxSize()
                     .background(Color.DarkGray),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -284,10 +295,15 @@ fun TransactionsPage() {
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-//                        println(selectedTabIndex)
                         when (selectedTabIndex) {
-                            0 -> tabContent(TransactionType.IN)
-                            1 -> tabContent(TransactionType.OUT)
+                            0 -> {
+                                tabContent(TransactionType.IN)
+                                transactionViewModel.fillFormFields(transactionType = TransactionType.IN)
+                            }
+                            1 -> {
+                                tabContent(TransactionType.OUT)
+                                transactionViewModel.fillFormFields(transactionType = TransactionType.OUT)
+                            }
                         }
                     }
                 }
@@ -301,7 +317,7 @@ fun TransactionsPage() {
                 },
                 shape = RoundedCornerShape(30),
                 modifier = Modifier
-                    .padding(end = 30.dp, bottom = 30.dp)
+                    .padding(end = 30.dp, bottom = 140.dp)
 //                    .size(60.dp)
                     .align(Alignment.BottomEnd)
             ) {
@@ -311,9 +327,7 @@ fun TransactionsPage() {
                     modifier = Modifier.size(30.dp))
             }
 
-            Row(
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
+            Row(modifier = Modifier.align(Alignment.BottomCenter)) {
                 BottomNav(navigator, PageName.TRANSACTIONS.value)
             }
         }

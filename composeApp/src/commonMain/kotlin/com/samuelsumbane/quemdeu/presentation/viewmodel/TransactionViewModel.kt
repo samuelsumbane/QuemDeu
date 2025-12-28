@@ -28,39 +28,43 @@ class TransactionViewModel(
     fun getInTransactions() {
         viewModelScope.launch {
             val inTransactions = getTransactionsUseCase().filter { tra -> tra.state == TransactionType.IN }
-            println("in are $inTransactions")
+//            println("in are $inTransactions")
             _state.update { it.copy(inTransactions = inTransactions) }
         }
     }
     fun getOutTransactions() {
         viewModelScope.launch {
             val outTransactions = getTransactionsUseCase().filter { it.state == TransactionType.OUT }
-            println("out are $outTransactions")
+//            println("out are $outTransactions")
             _state.update { it.copy(outTransactions = outTransactions) }
         }
     }
 
     fun submitForm() {
         viewModelScope.launch {
+            println("iniciei")
             if (state.value.title.isBlank()) {
+                println("nao encontrei o tituo")
                 setError(InputNames.Title, "O titulo é obrigatorio")
-            } else {
-                setError(InputNames.Title, "")
                 return@launch
+            } else {
+                println("encontrei o titulo")
+                removeError(InputNames.Title)
             }
+            println("passei o titulo")
 
-            if (state.value.title.isBlank()) {
+            if (state.value.personName.isBlank()) {
                 setError(InputNames.PersonName, "O nome da pessoa é obrigatorio")
-            } else {
-                setError(InputNames.PersonName, "")
                 return@launch
+            } else {
+                removeError(InputNames.PersonName)
             }
 
-            if (state.value.title.isBlank()) {
+            if (state.value.amount == 0.0) {
                 setError(InputNames.Amount, "O valor é obrigatorio")
-            } else {
-                setError(InputNames.Amount, "")
                 return@launch
+            } else {
+                removeError(InputNames.Amount)
             }
 
             val transactionDraft = TransactionDraft(
@@ -84,16 +88,23 @@ class TransactionViewModel(
         description: String? = null,
         personName: String? = null,
         amount: Double? = null,
+        transactionType: TransactionType? = null,
     ) {
         title?.let { newValue -> _state.update { it.copy(title = newValue) } }
         description?.let { newValue -> _state.update { it.copy(description = newValue) } }
         personName?.let { newValue -> _state.update { it.copy(personName = newValue) } }
         amount?.let { newValue -> _state.update { it.copy(amount = newValue) } }
+        transactionType?.let { newValue -> _state.update { it.copy(transactionType = newValue) } }
     }
 
     fun setError(inputNames: InputNames, error: String) {
         _state.update {
             it.copy(errors = it.errors.toMutableMap().apply { put(inputNames, error) })
+        }
+    }
+    fun removeError(inputNames: InputNames) {
+        _state.update {
+            it.copy(errors = it.errors.toMutableMap().apply { remove(inputNames) })
         }
     }
 

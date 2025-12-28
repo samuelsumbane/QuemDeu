@@ -7,10 +7,10 @@ import com.samuelsumbane.quemdeu.ui.InputNames
 data class TransactionUiState(
     val inTransactions: List<Transaction> = emptyList(),
     val outTransactions: List<Transaction> = emptyList(),
-    val title: String = "",
-    val description: String = "",
-    val personName: String = "",
-    val amount: Double = 0.0,
+    val title: String = "emprestimo simples",
+    val description: String = "pedido de 400 mt",
+    val personName: String = "Roma Nove",
+    val amount: Double = 10.0,
     val limitDateTime: Long = 0L,
     val transactionType: TransactionType = TransactionType.IN,
     val errors: Map<InputNames, String> = emptyMap()

@@ -76,6 +76,7 @@ fun InputField(
         )
 
         errorText?.let { ErrorText(errorText) }
+//        ErrorText("")
     }
 }
 
