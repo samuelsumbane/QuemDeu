@@ -1,5 +1,6 @@
 package com.samuelsumbane.quemdeu
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -24,4 +25,21 @@ fun main() = application {
         }
         Navigator(AppScreen())
     }
+}
+
+
+/**
+ * On desktop, the app will always in portrait
+ */
+@Composable
+actual fun isMobilePortrait() = true
+
+@Composable
+actual fun BottomNav(
+    navigator: Navigator,
+    activePage: String,
+) {
+    /**
+     * On the desktop, this function will not do anything
+     */
 }

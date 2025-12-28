@@ -60,10 +60,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.samuelsumbane.quemdeu.BottomNav
 import com.samuelsumbane.quemdeu.domain.model.Transaction
 import com.samuelsumbane.quemdeu.domain.model.TransactionType
 import com.samuelsumbane.quemdeu.presentation.viewmodel.TransactionViewModel
 import com.samuelsumbane.quemdeu.ui.InputField
+import com.samuelsumbane.quemdeu.ui.PageName
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.koin.java.KoinJavaComponent.getKoin
@@ -307,6 +309,12 @@ fun TransactionsPage() {
                     painter = painterResource(Res.drawable.add),
                     "add",
                     modifier = Modifier.size(30.dp))
+            }
+
+            Row(
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                BottomNav(navigator, PageName.TRANSACTIONS.value)
             }
         }
     }
